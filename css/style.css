@@ -6,6 +6,16 @@
   --surface: #ffffff;
   --text: #000000;
   --muted: #6b6480;
+  --water: rgba(64, 156, 235, .62);
+  --water-deep: #2f86d6;
+  --water-light: #dcecfb;
+  /* illustrated pool */
+  --pool-top: #6cc4f5;
+  --pool-deep: #2a7fd0;
+  --pool-edge: #1d5fa8;
+  --pool-foam: #ffffff;
+  --pool-tile: #f2f8fd;
+  --pool-grout: #dcebf7;
 
   --font-body: "Google Sans", "Rubik", system-ui, sans-serif;
   --font-display: "HolmimMF", "Rubik", system-ui, sans-serif;
@@ -13,8 +23,11 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+html, body { height: 100%; }
+
 body {
   margin: 0;
+  overflow: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
@@ -27,12 +40,16 @@ body {
 
 /* ---------- layout (design frame: 1920×1080) ---------- */
 .page {
+  /* fills the viewport exactly – no page scroll. Vertical rhythm scales with height (design: 1080px) */
   max-width: 1920px;
-  min-height: 100vh;
+  height: 100%;
   margin: 0 auto;
-  padding: 79px 94px 31px 152px; /* top / right / bottom / left, per design */
+  padding-block: clamp(16px, 7.3vh, 79px) clamp(12px, 2.9vh, 31px);
+  padding-right: max(16px, min(94px, 4.9vw));
+  padding-left: max(16px, min(152px, 7.9vw));
   display: grid;
   grid-template-columns: minmax(0, 885px) minmax(0, 483px); /* RTL: first column is on the right */
+  grid-template-rows: minmax(0, 1fr);
   justify-content: space-between;
   column-gap: 48px;
 }
@@ -40,6 +57,7 @@ body {
 .dashboard {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 /* ---------- header ---------- */
@@ -50,19 +68,21 @@ body {
   justify-content: flex-start;
 }
 .greeting {
-  margin: 0 0 17px;
-  font-size: 30px;
+  margin: 0 0 clamp(6px, 1.6vh, 17px);
+  font-size: clamp(20px, 2.8vh, 30px);
   white-space: nowrap;
 }
 .logo {
-  width: 467px;
+  height: clamp(48px, 10.3vh, 111px);
+  width: auto;
   max-width: 100%;
-  height: auto;
+  object-fit: contain;
 }
 
 /* ---------- controls ---------- */
 .controls {
-  margin-top: 68px;
+  margin-top: clamp(10px, 6.3vh, 68px);
+  flex: none;
   display: flex;
   align-items: center;
   gap: 33px;
@@ -71,23 +91,46 @@ body {
 .date-bar {
   flex: 1 1 682px;
   max-width: 682px;
-  height: 88px;
+  height: clamp(56px, 8.1vh, 88px);
   background: var(--surface);
   border-bottom: 2px solid var(--purple);
   display: flex;
   align-items: center;
   padding: 0 22px 0 9.5px;
 }
-.date-label {
+.date-nav {
   margin: 0 0 0 auto;
-  font-size: 30px;
-  white-space: pre;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
+.date-label {
+  margin: 0;
+  min-width: 0;
+  font-size: clamp(20px, 2.8vh, 30px);
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+}
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.nav-btn:hover, .nav-btn:focus-visible { background: var(--lavender); outline: none; }
+.nav-btn:disabled { opacity: .25; cursor: default; background: transparent; }
+.nav-prev { transform: rotate(-90deg); }  /* RTL: back in time points right */
+.nav-next { transform: rotate(90deg); }
 
 .period-select {
   position: relative;
-  width: 138px;
-  height: 54px;
+  width: 118px;
+  height: 46px;
   border-radius: 20px;
   background: var(--surface);
   display: flex;
@@ -99,8 +142,8 @@ body {
   background: transparent;
   width: 100%;
   height: 100%;
-  padding: 0 27px 0 50px;
-  font: 500 30px var(--font-body);
+  padding: 0 18px 0 40px;
+  font: 500 clamp(16px, 2vh, 20px) var(--font-body);
   color: var(--text);
   cursor: pointer;
   border-radius: 20px;
@@ -108,8 +151,8 @@ body {
 .period-select select:focus-visible { outline: 2px solid var(--purple); }
 .chevron {
   position: absolute;
-  left: 25px;
-  top: 21px;
+  left: 18px;
+  top: 16px;
   pointer-events: none;
 }
 
@@ -131,7 +174,7 @@ body {
 
 .drink-btn {
   flex: 0 0 167px;
-  height: 70px;
+  height: clamp(48px, 6.5vh, 70px);
   border: 0;
   border-radius: 20px;
   background: var(--purple);
@@ -142,20 +185,226 @@ body {
 }
 .drink-btn:hover { filter: brightness(1.15); }
 .drink-btn:active { transform: scale(.96); }
+.drink-btn:focus-visible { outline: 3px solid var(--water-deep); outline-offset: 3px; }
 
-/* ---------- viz panel (placeholder area – content per time slice) ---------- */
+/* ---------- "what did you drink?" menu ---------- */
+.drink-action { position: relative; flex: 0 0 167px; display: flex; }
+.drink-action .drink-btn { flex: 1; }
+.drink-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 20;
+  width: 340px;
+  padding: 14px;
+  background: var(--lavender);
+  border: 4px solid var(--purple);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--purple) 25%, transparent);
+}
+.drink-menu-title { margin: 0 4px 10px; font: 500 22px var(--font-body); color: var(--purple); }
+.drink-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.drink-option {
+  height: 46px;
+  border: 2px solid var(--purple);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--purple);
+  font: 500 18px var(--font-body);
+  cursor: pointer;
+}
+.drink-option:hover, .drink-option:focus-visible { background: var(--purple); color: #fff; outline: none; }
+
+/* ---------- viz panel – content per time slice ---------- */
 .viz-panel {
-  margin-top: 56px;
-  height: 306px;
+  margin-top: clamp(10px, 5.2vh, 56px);
+  flex: 1 1 306px;   /* absorbs leftover height */
+  min-height: 80px;
   border: 2px dashed color-mix(in srgb, var(--purple) 35%, transparent);
   border-radius: 30px;
   display: grid;
   place-items: center;
   text-align: center;
   color: var(--muted);
+  overflow: hidden;
+}
+
+/* daily view: progress (right) + log (left) */
+.viz-panel.is-day {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--purple) 18%, transparent);
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  grid-template-rows: minmax(0, 1fr);   /* lets the log list scroll inside the panel */
+  place-items: stretch;
+  text-align: start;
+}
+.day-progress {
+  padding: clamp(12px, 2.4vh, 26px) 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(4px, 1vh, 10px);
+  border-left: 2px solid color-mix(in srgb, var(--purple) 12%, transparent);
+}
+.day-progress .label { margin: 0; font-size: clamp(14px, 1.7vh, 18px); color: var(--muted); }
+.day-progress .big {
+  margin: 0;
+  font: 700 clamp(36px, 6vh, 64px)/1 var(--font-body);
+  color: var(--purple);
+  font-variant-numeric: tabular-nums;
+}
+.day-progress .big small { font-size: .45em; color: var(--muted); }
+.progress-track {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--water-light);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 7px;
+  background: var(--water-deep);
+  transition: width .6s ease;
+}
+.day-progress .status { margin: 0; font-size: clamp(14px, 1.7vh, 18px); color: var(--text); }
+.day-progress .status.done { color: var(--purple); font-weight: 700; }
+
+.day-log {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(10px, 2vh, 22px) 24px;
+}
+.day-log h3 { margin: 0 0 8px; font: 500 clamp(18px, 2.2vh, 24px) var(--font-body); color: var(--purple); }
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 8px;           /* room between rows and the scrollbar (left side in RTL) */
+  overflow-y: scroll;           /* scrollbar always visible */
+  overscroll-behavior: contain;
+  min-height: 0;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--purple) var(--lavender);
+}
+.log-list::-webkit-scrollbar { width: 10px; }
+.log-list::-webkit-scrollbar-track { background: var(--lavender); border-radius: 5px; }
+.log-list::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 5px; border: 2px solid var(--lavender); }
+.log-list li {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--purple) 10%, transparent);
+  font-size: clamp(14px, 1.8vh, 18px);
+}
+.log-list .time { font-variant-numeric: tabular-nums; color: var(--muted); }
+.row-actions { display: flex; gap: 2px; }
+.icon-btn {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 5px 8px;
+}
+.icon-btn:hover, .icon-btn:focus-visible { color: var(--purple); background: var(--lavender); outline: none; }
+.icon-btn.save { color: var(--purple); font-weight: 700; }
+
+/* inline edit of a log entry */
+.log-list li.editing {
+  grid-template-columns: 96px 1fr auto;
+  background: var(--lavender);
+  border-radius: 10px;
+}
+.edit-time, .edit-drink {
+  height: 34px;
+  border: 2px solid var(--purple);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font: 16px var(--font-body);
+  padding: 0 6px;
+  min-width: 0;
+}
+.edit-time:focus-visible, .edit-drink:focus-visible { outline: 2px solid var(--water-deep); outline-offset: 1px; }
+.log-empty { margin: auto 0; color: var(--muted); font-size: clamp(14px, 1.8vh, 18px); }
+
+/* week / month: illustrated pool chart */
+.viz-panel.is-chart {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--purple) 18%, transparent);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  place-items: stretch;
+  text-align: start;
+  padding: clamp(8px, 1.6vh, 18px) 22px clamp(6px, 1vh, 12px);
+}
+.chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+.chart-head h3 { margin: 0; font: 500 clamp(18px, 2.2vh, 24px) var(--font-body); color: var(--purple); }
+.chart-stats { margin: 0; display: flex; gap: 16px; flex-wrap: wrap; font-size: clamp(13px, 1.6vh, 16px); color: var(--muted); }
+.chart-stats b { color: var(--purple); font-variant-numeric: tabular-nums; }
+.chart-box { position: relative; flex: 1 1 0; min-height: 0; direction: ltr; margin-top: 6px; }
+.chart-box svg { position: absolute; inset: 0; display: block; overflow: visible; }
+
+.axis text { fill: var(--muted); font: 12px var(--font-body); font-variant-numeric: tabular-nums; }
+.axis text.is-today { fill: var(--purple); font-weight: 700; }
+
+.pool-basin { stroke: var(--pool-grout); stroke-width: 2; }
+.pool-back {
+  fill: var(--pool-top);
+  opacity: .45;
+}
+.pool-water { stroke: none; }
+.pool-ripple {
+  fill: none;
+  stroke: var(--pool-foam);
+  stroke-width: 2;
+  stroke-dasharray: 2 10 14 8;
+  stroke-linecap: round;
+  opacity: .55;
+}
+.pool-surface-outline { fill: none; stroke: var(--pool-edge); stroke-width: 7; stroke-linejoin: round; stroke-linecap: round; }
+.pool-surface { fill: none; stroke: var(--pool-foam); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+
+.goal-line { stroke: var(--purple); stroke-width: 2; stroke-dasharray: 8 6; }
+.goal-label { fill: var(--purple); font: 500 13px var(--font-body); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+
+.bubble { fill: var(--surface); stroke: var(--pool-edge); stroke-width: 2.5; }
+.bubble.is-goal { fill: var(--purple); stroke: var(--surface); }
+.hit { fill: transparent; cursor: pointer; outline: none; }
+.day:hover .bubble, .hit:focus-visible ~ .bubble, .day:focus-within .bubble { stroke-width: 4; }
+
+.chart-tip {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 14px));
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: var(--purple);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  direction: rtl;
+  text-align: center;
+  z-index: 2;
 }
 .viz-panel .viz-count {
-  font: 500 64px var(--font-display);
+  font: 500 64px var(--font-body);
   color: var(--purple);
   margin: 0;
 }
@@ -164,8 +413,9 @@ body {
 /* ---------- recommendations ---------- */
 .recommendations {
   position: relative;
-  margin-top: 55px;
-  padding-top: 35px;
+  margin-top: clamp(10px, 5.1vh, 55px);
+  padding-top: clamp(24px, 3.2vh, 35px);
+  flex: none;
 }
 .recommendations-title {
   position: absolute;
@@ -173,7 +423,7 @@ body {
   right: 46px;
   width: 528px;
   max-width: calc(100% - 46px);
-  height: 70px;
+  height: clamp(48px, 6.5vh, 70px);
   margin: 0;
   display: grid;
   place-items: center;
@@ -181,15 +431,14 @@ body {
   border: 6px solid var(--purple);
   border-radius: 30px;
   color: var(--purple);
-  font: 500 30px var(--font-display);
+  font: 500 clamp(20px, 2.8vh, 30px) var(--font-display);
 }
 .recommendations-body {
-  min-height: 256px;
   background: var(--cream);
   border: 6px solid var(--purple);
   border-radius: 30px;
-  padding: 47px 42px 24px;
-  font-size: 15px;
+  padding: clamp(30px, 4.4vh, 47px) 42px clamp(12px, 2.2vh, 24px);
+  font-size: clamp(12px, 1.4vh, 15px);
   line-height: normal;
 }
 .recommendations-body ul { margin: 0; padding-inline-start: 22.5px; }
@@ -197,15 +446,66 @@ body {
 
 /* ---------- illustration ---------- */
 .figure {
-  align-self: start;
-  padding-top: 120px; /* design: illustration top at y=199 */
+  min-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: clamp(16px, 11.1vh, 120px); /* design: illustration top at y=199 */
 }
 .figure-inner {
   position: relative;
-  width: 483px;
+  height: 100%;
+  max-height: 781px;
   max-width: 100%;
+  aspect-ratio: 483 / 781;
 }
-.figure-inner > img:first-child { display: block; width: 100%; height: auto; }
+.figure-inner > img:first-child { display: block; width: 100%; height: 100%; }
+/* water layer clipped to the illustration's silhouette */
+.figure-water {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url(../assets/woman.svg) center / 100% 100% no-repeat;
+          mask: url(../assets/woman.svg) center / 100% 100% no-repeat;
+}
+.water {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  background: var(--water);
+  transition: height 1s cubic-bezier(.3, .7, .3, 1);
+}
+.water::before { /* wavy surface */
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 200%;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12' viewBox='0 0 120 12'%3E%3Cpath d='M0 6 Q15 0 30 6 T60 6 T90 6 T120 6 V12 H0Z' fill='rgba(64,156,235,0.62)'/%3E%3C/svg%3E") repeat-x;
+  background-size: 120px 12px;
+  animation: wave 3s linear infinite;
+}
+.water.is-empty::before { display: none; }
+@keyframes wave { to { transform: translateX(-120px); } }
+@media (prefers-reduced-motion: reduce) {
+  .water { transition: none; }
+  .water::before { animation: none; }
+}
+.figure-level {
+  position: absolute;
+  bottom: 4px;
+  right: 4%;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background: var(--lavender);
+  color: var(--purple);
+  font: 500 18px var(--font-body);
+  font-variant-numeric: tabular-nums;
+}
+
 .figure-face {
   position: absolute;
   top: 28.04%;
@@ -214,18 +514,41 @@ body {
   height: auto;
 }
 
+/* pile of illustrated cups (coffee / tea / other) at her feet */
+.cup-pile {
+  position: absolute;
+  bottom: 0;
+  right: 50%;      /* on the open side of her feet, away from the dashboard */
+  width: 74%;
+  height: auto;
+  aspect-ratio: 200 / 200;
+  overflow: visible;
+  pointer-events: none;
+}
+.cup-pile .more { fill: var(--purple); font: 700 18px var(--font-body); }
+
 /* ---------- smaller screens ---------- */
 @media (max-width: 1200px) {
-  .page { grid-template-columns: minmax(0, 1fr); padding: 32px 16px; }
+  .page { grid-template-columns: minmax(0, 1fr); padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
   .figure { display: none; }
 }
+/* phones: too little height to fit everything – allow vertical scroll */
 @media (max-width: 700px) {
+  body { overflow: auto; }
+  .page { height: auto; min-height: 100%; }
+  .viz-panel { flex: none; height: 240px; }
   .header { flex-direction: column-reverse; align-items: flex-start; }
   .controls { flex-direction: column-reverse; align-items: stretch; gap: 16px; }
   .date-bar { max-width: none; flex: none; }
-  .date-label, .period-select select { font-size: 20px; }
-  .period-select { width: 110px; }
+  .date-label { font-size: 18px; }
+  .period-select select { font-size: 16px; }
+  .period-select { width: 96px; }
+  .nav-btn { width: 32px; height: 32px; }
   .drink-btn { flex: none; }
+  .drink-action { flex: none; }
+  .drink-menu { left: auto; right: 0; width: min(300px, 100%); }
+  .viz-panel.is-day { grid-template-columns: 1fr; height: auto; }
+  .day-progress { border-left: 0; border-bottom: 2px solid color-mix(in srgb, var(--purple) 12%, transparent); }
   .recommendations-title { right: 16px; font-size: 22px; height: 56px; padding: 0 12px; }
   .recommendations-body { padding: 40px 20px 20px; }
 }

@@ -19,7 +19,15 @@
 
       <div class="controls">
         <div class="date-bar">
-          <p class="date-label" id="date-label"></p>
+          <div class="date-nav">
+            <button class="nav-btn" id="prev-btn" type="button" aria-label="אחורה" title="אחורה">
+              <img class="nav-prev" src="assets/chevron.svg" alt="" width="17.5" height="13.7">
+            </button>
+            <p class="date-label" id="date-label"></p>
+            <button class="nav-btn" id="next-btn" type="button" aria-label="קדימה" title="קדימה">
+              <img class="nav-next" src="assets/chevron.svg" alt="" width="17.5" height="13.7">
+            </button>
+          </div>
           <label class="period-select">
             <span class="visually-hidden">חתך זמן</span>
             <select id="period">
@@ -34,7 +42,13 @@
             <input type="date" id="date-input" aria-label="בחירת תאריך">
           </label>
         </div>
-        <button class="drink-btn" id="drink-btn" type="button">שתיתי!</button>
+        <div class="drink-action">
+          <button class="drink-btn" id="drink-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="drink-menu">שתיתי!</button>
+          <div class="drink-menu" id="drink-menu" role="menu" hidden>
+            <p class="drink-menu-title">מה שתית?</p>
+            <div class="drink-options" id="drink-options"></div>
+          </div>
+        </div>
       </div>
 
       <!-- אזור ההדמיה: מתעדכן לפי חתך הזמן שנבחר -->
@@ -62,12 +76,20 @@
     <aside class="figure">
       <div class="figure-inner">
         <img src="assets/woman.svg" alt="" width="483" height="781">
+        <!-- מים שממלאים את האיור לפי ההתקדמות ליעד היומי -->
+        <div class="figure-water" aria-hidden="true">
+          <div class="water" id="water"></div>
+        </div>
         <img class="figure-face" src="assets/woman-face.svg" alt="" width="82" height="45">
+        <!-- ערימת כוסות קפה / תה לרגליה -->
+        <svg class="cup-pile" id="cup-pile" viewBox="0 0 200 200" aria-hidden="true"></svg>
+        <p class="figure-level" id="figure-level"></p>
       </div>
     </aside>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="data/seed.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/app.js"></script>
 </body>
