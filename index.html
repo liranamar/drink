@@ -77,12 +77,16 @@
 
     <aside class="figure">
       <div class="figure-inner">
-        <img src="assets/woman.svg" alt="" width="483" height="781">
-        <!-- מים שממלאים את האיור לפי ההתקדמות ליעד היומי -->
-        <div class="figure-water" aria-hidden="true">
-          <div class="water" id="water"></div>
+        <!-- הדמות (גוף + מים + פנים) – רוקדת כשמוסיפים מים -->
+        <div class="dancer" id="dancer">
+          <img src="assets/woman.svg" alt="" width="483" height="781">
+          <!-- מים שממלאים את האיור לפי ההתקדמות ליעד היומי -->
+          <div class="figure-water" aria-hidden="true">
+            <div class="water" id="water"></div>
+          </div>
+          <img class="figure-face" src="assets/woman-face.svg" alt="" width="82" height="45">
         </div>
-        <img class="figure-face" src="assets/woman-face.svg" alt="" width="82" height="45">
+        <div class="dance-fx" id="dance-fx" aria-hidden="true"></div>
         <!-- ערימת כוסות קפה / תה לרגליה -->
         <svg class="cup-pile" id="cup-pile" viewBox="0 0 200 200" aria-hidden="true"></svg>
         <p class="figure-level" id="figure-level"></p>

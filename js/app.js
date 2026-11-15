@@ -527,6 +527,32 @@
     closeMenu();
     el.drinkBtn.focus();
     render();
+    if (WATER_KINDS.has(kind)) happyDance();
+  }
+
+  // ריקוד שמח כשמוסיפים מים 💃 – קפיצות, נענועים, תווים וטיפות שעפים למעלה
+  function happyDance() {
+    const dancer = document.getElementById("dancer");
+    const fx = document.getElementById("dance-fx");
+    dancer.classList.remove("dancing");
+    void dancer.offsetWidth; // restart the animation if already dancing
+    dancer.classList.add("dancing");
+    dancer.addEventListener("animationend", () => dancer.classList.remove("dancing"), { once: true });
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const bits = ["♪", "♫", "drop", "♪", "drop", "♫", "drop"];
+    bits.forEach((b, i) => {
+      const n = document.createElement("span");
+      n.className = b === "drop" ? "fx drop" : "fx";
+      if (b !== "drop") n.textContent = b;
+      const left = i % 2 ? 62 + Math.random() * 30 : 2 + Math.random() * 30;   // around her raised hands
+      n.style.left = `${left}%`;
+      n.style.top = `${4 + Math.random() * 22}%`;
+      n.style.setProperty("--dx", `${(i % 2 ? 1 : -1) * (10 + Math.random() * 30)}px`);
+      n.style.animationDelay = `${i * 0.18}s`;
+      fx.appendChild(n);
+      n.addEventListener("animationend", () => n.remove(), { once: true });
+    });
   }
 
   el.drinkBtn.addEventListener("click", () => (el.menu.hidden ? openMenu() : closeMenu()));
