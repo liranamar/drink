@@ -78,24 +78,16 @@ const Figure = (() => {
       clip("cp-suit", ["Vector_18"]),
     ]);
 
-    // עיניים פקוחות + פה פתוח – מופיעים רק בזמן הריקוד (הפנים מוטות בכ-28°)
-    const eye = (cx) =>
-      el("g", {}, [
-        el("ellipse", { cx, cy: 0, rx: 5.3, ry: 6, fill: "#fff", stroke: "#87422A", "stroke-width": 0.9 }),
-        el("circle", { cx: cx + 0.3, cy: 0.9, r: 3, fill: "#1d1033" }),
-        el("circle", { cx: cx + 1.4, cy: -0.5, r: 1.1, fill: "#fff" }),
-      ]);
-    const eyesOpen = el("g", { class: "eyes-open", transform: "translate(217 85.3) rotate(-28)" }, [eye(-9.8), eye(9.8)]);
+    // פה פתוח – מופיע רק בזמן הריקוד (הפנים מוטות בכ-28°). העיניים נשארות עצומות.
     const mouthOpen = el("g", { class: "mouth-open", transform: "translate(226.6 94.4) rotate(-28)" }, [
       el("path", { d: "M-5.5 -1.2Q0 7.5 5.5 -1.2Z", fill: "#5a1f1f" }),
       el("path", { d: "M-2.6 2.6Q0 5.6 2.6 2.6Q0 1.4 -2.6 2.6Z", fill: "#ff6b8a" }),
     ]);
 
-    // עיניים סגורות (Group_7) וחיוך (Vector_19) – מקבלים מחלקה כדי שנוכל להחליף
+    // החיוך (Vector_19) מתחלף בפה פתוח בזמן הריקוד
     const faceFeatures = [take("Vector_16"), take("Vector_17")];
     const smile = take("Vector_19"); smile.classList.add("smile");
     const features = take("Group_6");
-    const closed = features.querySelector("#w-Group_7"); if (closed) closed.classList.add("eyes-closed");
 
     const chest = el("g", { class: "chest", transform: "translate(231.07 219)" },
       [...chestDoc.documentElement.children].map((n) => document.importNode(n, true)));
@@ -115,7 +107,7 @@ const Figure = (() => {
           el("g", { class: "fig-part head" }, [
             ...faceFeatures, smile, features,
             take("Vector_25"), take("Vector_26"), take("Vector_27"), take("Vector_28"),
-            water("cp-face"), eyesOpen, mouthOpen,
+            water("cp-face"), mouthOpen,
           ]),
         ]),
         el("g", { class: "fig-part suit" }, [take("Vector_18"), water("cp-suit"), chest]),

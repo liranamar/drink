@@ -86,6 +86,7 @@
     editingId: null,    // רשומה בעריכה
   };
   let chartTimer = null; // אנימציית הגלים בגרף
+  let lastRatio = 0;     // מילוי הדמות האחרון (לספלאש)
 
   const el = {
     dateLabel: document.getElementById("date-label"),
@@ -450,6 +451,7 @@
     const events = DrinkStore.between(...dayRange(state.date));
     const cups = events.filter(isWater).length;
     const ratio = (cups * WATER_CUP_ML) / GOAL_ML;
+    lastRatio = ratio;
     el.water.style.height = `${Math.min(ratio, 1) * 100}%`;   // מתמלאת עד הסוף ביעד
     Figure.setLevel(Math.min(ratio, 1));                       // הדמות המונפשת (js/figure.js)
     el.water.classList.toggle("is-empty", cups === 0);
@@ -535,10 +537,11 @@
     closeMenu();
     if (isToday) el.drinkBtn.focus();
     render();
+    applause();
     if (WATER_KINDS.has(kind)) happyDance();
   }
 
-  // ריקוד שמח כשמוסיפים מים 💃 – קפיצות, נענועים, תווים וטיפות שעפים למעלה
+  // ריקוד שמח כשמוסיפים מים – אגן, ידיים, זיקוקים וספלאש
   function happyDance() {
     const dancer = document.getElementById("dancer");
     const fx = document.getElementById("dance-fx");
@@ -549,19 +552,116 @@
     happyDance.t = setTimeout(() => dancer.classList.remove("dancing"), 2600);
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const bits = ["♪", "♫", "drop", "♪", "drop", "♫", "drop"];
-    bits.forEach((b, i) => {
+
+    // זיקוקים קטנים מעל הידיים המורמות
+    burst(fx, 14, 6, 0, ["#ff5d73", "#ffd166", "#ff8fa3"]);
+    burst(fx, 86, 3, 0.35, ["#7b5cff", "#4fc3f7", "#ffd166"]);
+    burst(fx, 50, -7, 0.7, ["#2f86d6", "#ff5d73", "#b8a9e6"]);
+    // ספלאש מים מפני המים שבתוכה
+    const surface = Math.max(10, Math.min(85, (1 - Math.min(lastRatio, 1)) * 100));
+    splash(fx, 56, surface, 0.1);
+  }
+
+  // פיצוץ זיקוק: הבזק במרכז + ניצוצות לכל הכיוונים שנופלים קצת בסוף
+  function burst(host, xPct, yPct, delay, colors) {
+    const spawn = (cls, style) => {
       const n = document.createElement("span");
-      n.className = b === "drop" ? "fx drop" : "fx";
-      if (b !== "drop") n.textContent = b;
-      const left = i % 2 ? 62 + Math.random() * 30 : 2 + Math.random() * 30;   // around her raised hands
-      n.style.left = `${left}%`;
-      n.style.top = `${4 + Math.random() * 22}%`;
-      n.style.setProperty("--dx", `${(i % 2 ? 1 : -1) * (10 + Math.random() * 30)}px`);
-      n.style.animationDelay = `${i * 0.18}s`;
-      fx.appendChild(n);
+      n.className = cls;
+      n.style.left = `${xPct}%`;
+      n.style.top = `${yPct}%`;
+      for (const [k, v] of Object.entries(style)) n.style.setProperty(k, v);
+      n.style.animationDelay = `${delay}s`;
+      host.appendChild(n);
       n.addEventListener("animationend", () => n.remove(), { once: true });
-    });
+    };
+    spawn("fx-flash", { "--c": colors[0] });
+    const N = 14;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2 + Math.random() * 0.3;
+      const d = 38 + Math.random() * 26;
+      spawn("fx-spark", {
+        "--c": colors[i % colors.length],
+        "--tx": `${(Math.cos(a) * d).toFixed(1)}px`,
+        "--ty": `${(Math.sin(a) * d).toFixed(1)}px`,
+      });
+    }
+  }
+
+  // ספלאש: טבעת על פני המים + טיפות שקופצות בקשת ונופלות
+  function splash(host, xPct, yPct, delay) {
+    const spawn = (cls, style, extraDelay = 0) => {
+      const n = document.createElement("span");
+      n.className = cls;
+      n.style.left = `${xPct}%`;
+      n.style.top = `${yPct}%`;
+      for (const [k, v] of Object.entries(style)) n.style.setProperty(k, v);
+      n.style.animationDelay = `${delay + extraDelay}s`;
+      host.appendChild(n);
+      n.addEventListener("animationend", () => n.remove(), { once: true });
+    };
+    if (lastRatio < 1) { // כשהיא מלאה עד הסוף אין "פני מים" גלויים – רק טיפות
+      spawn("fx-ring", {});
+      spawn("fx-ring", {}, 0.18);
+    }
+    for (let i = 0; i < 12; i++) {
+      spawn("fx-drop", {
+        "--dx": `${((Math.random() - 0.5) * 170).toFixed(0)}px`,
+        "--h": `${(45 + Math.random() * 70).toFixed(0)}px`,
+        "--s": `${(7 + Math.random() * 8).toFixed(0)}px`,
+      }, Math.random() * 0.15);
+    }
+  }
+
+  // מחיאות כפיים – מסונתזות בדפדפן (בלי קובץ קול): הרבה "מחיאות" קצרות של רעש מסונן
+  let audioCtx = null;
+  function applause() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const ctx = audioCtx;
+      const now = ctx.currentTime;
+      const DUR = 1.8;
+
+      // רעש לבן משותף
+      const len = Math.floor(ctx.sampleRate * 0.06);
+      const noise = ctx.createBuffer(1, len, ctx.sampleRate);
+      const data = noise.getChannelData(0);
+      for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.0001, now);
+      master.gain.exponentialRampToValueAtTime(0.5, now + 0.15);
+      master.gain.setValueAtTime(0.5, now + DUR - 0.6);
+      master.gain.exponentialRampToValueAtTime(0.0001, now + DUR);
+      master.connect(ctx.destination);
+
+      // ~8 "אנשים" שמוחאים כפיים בקצב קצת שונה
+      for (let p = 0; p < 8; p++) {
+        const rate = 4.2 + Math.random() * 2.2; // מחיאות בשנייה
+        const pitch = 900 + Math.random() * 1600;
+        const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+        if (pan) { pan.pan.value = Math.random() * 1.6 - 0.8; pan.connect(master); }
+        for (let t = Math.random() * 0.2; t < DUR; t += 1 / rate + (Math.random() - 0.5) * 0.04) {
+          const src = ctx.createBufferSource();
+          src.buffer = noise;
+          src.playbackRate.value = 0.8 + Math.random() * 0.5;
+          const bp = ctx.createBiquadFilter();
+          bp.type = "bandpass";
+          bp.frequency.value = pitch * (0.9 + Math.random() * 0.2);
+          bp.Q.value = 1.2;
+          const g = ctx.createGain();
+          const at = now + t;
+          g.gain.setValueAtTime(0.0001, at);
+          g.gain.exponentialRampToValueAtTime(0.35 + Math.random() * 0.25, at + 0.003);
+          g.gain.exponentialRampToValueAtTime(0.0001, at + 0.05 + Math.random() * 0.03);
+          src.connect(bp).connect(g).connect(pan || master);
+          src.start(at);
+          src.stop(at + 0.1);
+        }
+      }
+    } catch {
+      /* no audio available – stay silent */
+    }
   }
 
   el.drinkBtn.addEventListener("click", () => (el.menu.hidden ? openMenu() : closeMenu()));

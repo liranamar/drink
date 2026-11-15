@@ -475,8 +475,8 @@ body {
 .fig-part.head  { transform-origin: 240px 150px; }  /* neck */
 .fig-part.arm-l { transform-origin: 232px 205px; }  /* left shoulder */
 .fig-part.arm-r { transform-origin: 318px 198px; }  /* right shoulder */
-.eyes-open, .mouth-open { opacity: 0; transition: opacity .12s; }
-.eyes-closed, .smile { transition: opacity .12s; }
+.mouth-open { opacity: 0; transition: opacity .12s; }
+.smile { transition: opacity .12s; }
 
 .dancer.rigged.dancing { animation: groove-bounce .5s ease-in-out 5; }
 .dancing .fig-part.hips  { animation: hip-sway 1s ease-in-out 2.5; }
@@ -484,8 +484,8 @@ body {
 .dancing .fig-part.head  { animation: head-bob .5s ease-in-out 5; }
 .dancing .fig-part.arm-l { animation: wave-l .5s ease-in-out 5; }
 .dancing .fig-part.arm-r { animation: wave-r .5s ease-in-out 5; animation-delay: -.25s; }
-.dancing .eyes-open, .dancing .mouth-open { opacity: 1; }
-.dancing .eyes-closed, .dancing .smile { opacity: 0; }
+.dancing .mouth-open { opacity: 1; }
+.dancing .smile { opacity: 0; }
 
 @keyframes groove-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(.8%); } }
 @keyframes hip-sway   { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.6deg); } 75% { transform: rotate(2.6deg); } }
@@ -508,30 +508,67 @@ body {
   100% { transform: translateY(0) rotate(0) scale(1, 1); }
 }
 
-/* music notes and droplets that float up during the dance */
+/* celebration: small fireworks above her hands + a water splash from the water surface */
 .dance-fx { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
-.fx {
+.fx-spark {
   position: absolute;
-  font: 700 28px var(--font-body);
-  color: var(--purple);
-  animation: fx-float 1.6s ease-out forwards;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px var(--c), 0 0 2px #fff;
   opacity: 0;
+  animation: spark .95s cubic-bezier(.15, .75, .3, 1) forwards;
 }
-.fx.drop {
-  width: 14px;
-  height: 14px;
+.fx-flash {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 30%, var(--c) 60%, transparent 70%);
+  opacity: 0;
+  animation: flash .45s ease-out forwards;
+}
+@keyframes spark {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty) + 16px)) scale(.35); }
+}
+@keyframes flash {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(.4); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+}
+.fx-drop {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
   background: var(--water-deep);
-  border-radius: 0 50% 50% 50%;
-  transform: rotate(45deg);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0;
+  animation: drop-arc 1s cubic-bezier(.3, .6, .5, 1) forwards;
 }
-@keyframes fx-float {
-  0%   { opacity: 0; translate: 0 0; scale: .6; }
-  15%  { opacity: 1; }
-  100% { opacity: 0; translate: var(--dx, 0) -120px; scale: 1.15; }
+.fx-ring {
+  position: absolute;
+  width: 70px;
+  height: 18px;
+  border: 3px solid var(--water-deep);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ring .7s ease-out forwards;
+}
+@keyframes drop-arc {
+  0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-45deg); }
+  10%  { opacity: 1; }
+  45%  { transform: translate(calc(-50% + var(--dx) * .55), calc(-50% - var(--h))) rotate(-45deg); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--h) * .35)) rotate(-45deg); }
+}
+@keyframes ring {
+  0%   { opacity: .9; transform: translate(-50%, -50%) scale(.3); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
 }
 @media (prefers-reduced-motion: reduce) {
   .dancer.dancing, .dancing .fig-part { animation: none !important; }
-  .fx { display: none; }
+  .fx-spark, .fx-flash, .fx-drop, .fx-ring { display: none; }
 }
 /* water layer clipped to the illustration's silhouette */
 .figure-water {
