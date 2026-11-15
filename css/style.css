@@ -1,0 +1,231 @@
+:root {
+  --bg: #fffef7;
+  --purple: #390a7b;
+  --lavender: #eeedff;
+  --cream: #fffce6;
+  --surface: #ffffff;
+  --text: #000000;
+  --muted: #6b6480;
+
+  --font-body: "Google Sans", "Rubik", system-ui, sans-serif;
+  --font-display: "HolmimMF", "Rubik", system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- layout (design frame: 1920×1080) ---------- */
+.page {
+  max-width: 1920px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 79px 94px 31px 152px; /* top / right / bottom / left, per design */
+  display: grid;
+  grid-template-columns: minmax(0, 885px) minmax(0, 483px); /* RTL: first column is on the right */
+  justify-content: space-between;
+  column-gap: 48px;
+}
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- header ---------- */
+.header {
+  display: flex;
+  align-items: flex-end;
+  gap: 15px;
+  justify-content: flex-start;
+}
+.greeting {
+  margin: 0 0 17px;
+  font-size: 30px;
+  white-space: nowrap;
+}
+.logo {
+  width: 467px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- controls ---------- */
+.controls {
+  margin-top: 68px;
+  display: flex;
+  align-items: center;
+  gap: 33px;
+}
+
+.date-bar {
+  flex: 1 1 682px;
+  max-width: 682px;
+  height: 88px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--purple);
+  display: flex;
+  align-items: center;
+  padding: 0 22px 0 9.5px;
+}
+.date-label {
+  margin: 0 0 0 auto;
+  font-size: 30px;
+  white-space: pre;
+}
+
+.period-select {
+  position: relative;
+  width: 138px;
+  height: 54px;
+  border-radius: 20px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+}
+.period-select select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  padding: 0 27px 0 50px;
+  font: 500 30px var(--font-body);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 20px;
+}
+.period-select select:focus-visible { outline: 2px solid var(--purple); }
+.chevron {
+  position: absolute;
+  left: 25px;
+  top: 21px;
+  pointer-events: none;
+}
+
+.calendar-btn {
+  position: relative;
+  width: 57px;
+  height: 59px;
+  margin-right: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.calendar-btn input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.drink-btn {
+  flex: 0 0 167px;
+  height: 70px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--purple);
+  color: #fff;
+  font: 500 30px var(--font-display);
+  cursor: pointer;
+  transition: transform .1s ease;
+}
+.drink-btn:hover { filter: brightness(1.15); }
+.drink-btn:active { transform: scale(.96); }
+
+/* ---------- viz panel (placeholder area – content per time slice) ---------- */
+.viz-panel {
+  margin-top: 56px;
+  height: 306px;
+  border: 2px dashed color-mix(in srgb, var(--purple) 35%, transparent);
+  border-radius: 30px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: var(--muted);
+}
+.viz-panel .viz-count {
+  font: 500 64px var(--font-display);
+  color: var(--purple);
+  margin: 0;
+}
+.viz-panel .viz-caption { margin: 4px 0 0; font-size: 20px; }
+
+/* ---------- recommendations ---------- */
+.recommendations {
+  position: relative;
+  margin-top: 55px;
+  padding-top: 35px;
+}
+.recommendations-title {
+  position: absolute;
+  top: 0;
+  right: 46px;
+  width: 528px;
+  max-width: calc(100% - 46px);
+  height: 70px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  background: var(--lavender);
+  border: 6px solid var(--purple);
+  border-radius: 30px;
+  color: var(--purple);
+  font: 500 30px var(--font-display);
+}
+.recommendations-body {
+  min-height: 256px;
+  background: var(--cream);
+  border: 6px solid var(--purple);
+  border-radius: 30px;
+  padding: 47px 42px 24px;
+  font-size: 15px;
+  line-height: normal;
+}
+.recommendations-body ul { margin: 0; padding-inline-start: 22.5px; }
+.recommendations-body .sub-title { margin: 1.15em 0 0; }
+
+/* ---------- illustration ---------- */
+.figure {
+  align-self: start;
+  padding-top: 120px; /* design: illustration top at y=199 */
+}
+.figure-inner {
+  position: relative;
+  width: 483px;
+  max-width: 100%;
+}
+.figure-inner > img:first-child { display: block; width: 100%; height: auto; }
+.figure-face {
+  position: absolute;
+  top: 28.04%;
+  left: 47.84%;
+  width: 16.98%;
+  height: auto;
+}
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 1200px) {
+  .page { grid-template-columns: minmax(0, 1fr); padding: 32px 16px; }
+  .figure { display: none; }
+}
+@media (max-width: 700px) {
+  .header { flex-direction: column-reverse; align-items: flex-start; }
+  .controls { flex-direction: column-reverse; align-items: stretch; gap: 16px; }
+  .date-bar { max-width: none; flex: none; }
+  .date-label, .period-select select { font-size: 20px; }
+  .period-select { width: 110px; }
+  .drink-btn { flex: none; }
+  .recommendations-title { right: 16px; font-size: 22px; height: 56px; padding: 0 12px; }
+  .recommendations-body { padding: 40px 20px 20px; }
+}

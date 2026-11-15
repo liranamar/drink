@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>תשתי משהו</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="page">
+    <section class="dashboard">
+      <header class="header">
+        <p class="greeting">היי <span id="user-name">לירן</span>,</p>
+        <img class="logo" src="assets/logo.png" alt="תשתי משהו" width="467" height="111">
+      </header>
+
+      <div class="controls">
+        <div class="date-bar">
+          <p class="date-label" id="date-label"></p>
+          <label class="period-select">
+            <span class="visually-hidden">חתך זמן</span>
+            <select id="period">
+              <option value="day">יום</option>
+              <option value="week">שבוע</option>
+              <option value="month">חודש</option>
+            </select>
+            <img class="chevron" src="assets/chevron.svg" alt="" width="17.5" height="13.7">
+          </label>
+          <label class="calendar-btn" title="בחירת תאריך">
+            <img src="assets/calendar.svg" alt="" width="42.75" height="49.17">
+            <input type="date" id="date-input" aria-label="בחירת תאריך">
+          </label>
+        </div>
+        <button class="drink-btn" id="drink-btn" type="button">שתיתי!</button>
+      </div>
+
+      <!-- אזור ההדמיה: מתעדכן לפי חתך הזמן שנבחר -->
+      <section class="viz-panel" id="viz" aria-live="polite"></section>
+
+      <section class="recommendations">
+        <h2 class="recommendations-title">משרד הבריאות ממליץ</h2>
+        <div class="recommendations-body">
+          <ul>
+            <li>כמות מומלצת לנשים: כ-9 כוסות מים ביום (כ-2.2 ליטר נוזלים בשתייה).</li>
+            <li>כמות מומלצת לגברים: כ-13 כוסות מים ביום (כ-3 ליטר נוזלים בשתייה).</li>
+            <li>מי ברז בישראל: משרד הבריאות מציין כי מי השתייה המסופקים דרך מערכת המים תקינים, איכותיים ובטוחים לשתייה.<br>
+              מומלץ לתת זרם קצר למים שעמדו זמן רב בצנרת לפני השימוש.</li>
+          </ul>
+          <p class="sub-title">מצבים והמלצות מיוחדות</p>
+          <ul>
+            <li>הריון: תוספת של כ-2 כוסות ביום (סך הכל כ-11 כוסות).</li>
+            <li>הנקה: תוספת של כ-4 כוסות ביום (סך הכל כ-13 כוסות).</li>
+            <li>מדד לשתייה מספקת: צבע שתן בהיר ונטול ריח חזק מעיד בדרך כלל על רמת רוויה טובה בגוף.</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+
+    <aside class="figure">
+      <div class="figure-inner">
+        <img src="assets/woman.svg" alt="" width="483" height="781">
+        <img class="figure-face" src="assets/woman-face.svg" alt="" width="82" height="45">
+      </div>
+    </aside>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
