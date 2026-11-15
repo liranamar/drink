@@ -78,15 +78,9 @@ const Figure = (() => {
       clip("cp-suit", ["Vector_18"]),
     ]);
 
-    // פה פתוח – מופיע רק בזמן הריקוד (הפנים מוטות בכ-28°). העיניים נשארות עצומות.
-    const mouthOpen = el("g", { class: "mouth-open", transform: "translate(226.6 94.4) rotate(-28)" }, [
-      el("path", { d: "M-5.5 -1.2Q0 7.5 5.5 -1.2Z", fill: "#5a1f1f" }),
-      el("path", { d: "M-2.6 2.6Q0 5.6 2.6 2.6Q0 1.4 -2.6 2.6Z", fill: "#ff6b8a" }),
-    ]);
 
-    // החיוך (Vector_19) מתחלף בפה פתוח בזמן הריקוד
     const faceFeatures = [take("Vector_16"), take("Vector_17")];
-    const smile = take("Vector_19"); smile.classList.add("smile");
+    const smile = take("Vector_19");
     const features = take("Group_6");
 
     const chest = el("g", { class: "chest", transform: "translate(231.07 219)" },
@@ -107,7 +101,7 @@ const Figure = (() => {
           el("g", { class: "fig-part head" }, [
             ...faceFeatures, smile, features,
             take("Vector_25"), take("Vector_26"), take("Vector_27"), take("Vector_28"),
-            water("cp-face"), mouthOpen,
+            water("cp-face"),
           ]),
         ]),
         el("g", { class: "fig-part suit" }, [take("Vector_18"), water("cp-suit"), chest]),

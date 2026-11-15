@@ -87,6 +87,7 @@
   };
   let chartTimer = null; // אנימציית הגלים בגרף
   let lastRatio = 0;     // מילוי הדמות האחרון (לספלאש)
+  const DANCE_S = 2.5;   // משך הריקוד (תואם ל-CSS: 2.5 מחזורים של 1s) – כל האפקטים מתוזמנים אליו
 
   const el = {
     dateLabel: document.getElementById("date-label"),
@@ -549,17 +550,26 @@
     void dancer.offsetWidth; // restart the animation if already dancing
     dancer.classList.add("dancing");
     clearTimeout(happyDance.t);
-    happyDance.t = setTimeout(() => dancer.classList.remove("dancing"), 2600);
+    happyDance.t = setTimeout(() => dancer.classList.remove("dancing"), DANCE_S * 1000 + 100);
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     // זיקוקים קטנים מעל הידיים המורמות
-    burst(fx, 14, 6, 0, ["#ff5d73", "#ffd166", "#ff8fa3"]);
-    burst(fx, 86, 3, 0.35, ["#7b5cff", "#4fc3f7", "#ffd166"]);
-    burst(fx, 50, -7, 0.7, ["#2f86d6", "#ff5d73", "#b8a9e6"]);
-    // ספלאש מים מפני המים שבתוכה
+    // הזיקוקים מתפזרים לאורך כל הריקוד; כל אחד חי ~0.95 שנ׳, האחרון נגמר יחד עם הריקוד
+    const SPARK_S = 0.95;
+    const shots = [
+      [14, 6, ["#ff5d73", "#ffd166", "#ff8fa3"]],
+      [86, 3, ["#7b5cff", "#4fc3f7", "#ffd166"]],
+      [50, -7, ["#2f86d6", "#ff5d73", "#b8a9e6"]],
+      [22, -2, ["#ffd166", "#7b5cff", "#4fc3f7"]],
+      [78, -5, ["#ff8fa3", "#2f86d6", "#ffd166"]],
+    ];
+    const gap = (DANCE_S - SPARK_S) / (shots.length - 1);
+    shots.forEach(([x, y, c], i) => burst(fx, x, y, i * gap, c));
+    // ספלאש מים מפני המים שבתוכה – בתחילת הריקוד ושוב לקראת הסוף
     const surface = Math.max(10, Math.min(85, (1 - Math.min(lastRatio, 1)) * 100));
-    splash(fx, 56, surface, 0.1);
+    splash(fx, 56, surface, 0.05);
+    splash(fx, 50, surface, DANCE_S - 1.05);
   }
 
   // פיצוץ זיקוק: הבזק במרכז + ניצוצות לכל הכיוונים שנופלים קצת בסוף
@@ -620,7 +630,7 @@
       if (audioCtx.state === "suspended") audioCtx.resume();
       const ctx = audioCtx;
       const now = ctx.currentTime;
-      const DUR = 1.8;
+      const DUR = DANCE_S; // נגמר יחד עם הריקוד
 
       // רעש לבן משותף
       const len = Math.floor(ctx.sampleRate * 0.06);
