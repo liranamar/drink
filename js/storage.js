@@ -54,6 +54,7 @@ const DrinkStore = (() => {
       const id = `${date.getTime()}-${Math.random().toString(36).slice(2, 7)}`;
       events.push({ id, ts: date.toISOString(), drink });
       save();
+      return id;
     },
     update(id, changes) {
       events = events.map((e) => (e.id === id ? { ...e, ...changes } : e));

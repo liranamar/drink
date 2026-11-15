@@ -519,13 +519,20 @@
   }
 
   function logDrink(kind) {
-    DrinkStore.add(kind, new Date());
-    // הרישום הוא תמיד לרגע הנוכחי – חוזרים לתצוגה היומית של היום
-    state.date = new Date();
+    // הרישום נכנס ליום שמוצג עכשיו. היום → השעה הנוכחית.
+    // יום קודם → אותה שעה של עכשיו באותו יום, ושורת הרישום נפתחת לעריכה כדי לקבוע את השעה הנכונה.
+    const now = new Date();
+    const isToday = +d3.timeDay.floor(state.date) === +d3.timeDay.floor(now);
+    const when = new Date(state.date);
+    when.setHours(now.getHours(), now.getMinutes(), 0, 0);
+    const id = DrinkStore.add(kind, isToday ? now : when);
+
+    state.date = isToday ? now : when;
     state.period = "day";
     el.period.value = "day";
+    state.editingId = isToday ? null : id;
     closeMenu();
-    el.drinkBtn.focus();
+    if (isToday) el.drinkBtn.focus();
     render();
     if (WATER_KINDS.has(kind)) happyDance();
   }
