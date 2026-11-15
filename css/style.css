@@ -462,8 +462,37 @@ body {
 .dancer { position: absolute; inset: 0; transform-origin: 50% 100%; }
 .dancer > img:first-child { display: block; width: 100%; height: 100%; }
 
-/* happy dance when water is added */
-.dancer.dancing { animation: happy-dance 1.8s cubic-bezier(.3, .6, .4, 1); }
+/* happy dance when water is added
+   - fallback (plain image): the whole figure hops
+   - rigged figure (js/figure.js): hips sway, torso counter-sways, arms wave, eyes open */
+.dancer:not(.rigged).dancing { animation: happy-dance 1.8s cubic-bezier(.3, .6, .4, 1); }
+
+.fig-rig { display: block; width: 100%; height: 100%; overflow: visible; }
+.fig-water { fill: var(--water); }
+.fig-part { transform-box: view-box; }
+.fig-part.hips  { transform-origin: 285px 778px; }  /* feet stay planted */
+.fig-part.upper { transform-origin: 280px 430px; }  /* waist */
+.fig-part.head  { transform-origin: 240px 150px; }  /* neck */
+.fig-part.arm-l { transform-origin: 232px 205px; }  /* left shoulder */
+.fig-part.arm-r { transform-origin: 318px 198px; }  /* right shoulder */
+.eyes-open, .mouth-open { opacity: 0; transition: opacity .12s; }
+.eyes-closed, .smile { transition: opacity .12s; }
+
+.dancer.rigged.dancing { animation: groove-bounce .5s ease-in-out 5; }
+.dancing .fig-part.hips  { animation: hip-sway 1s ease-in-out 2.5; }
+.dancing .fig-part.upper { animation: torso-sway 1s ease-in-out 2.5; }
+.dancing .fig-part.head  { animation: head-bob .5s ease-in-out 5; }
+.dancing .fig-part.arm-l { animation: wave-l .5s ease-in-out 5; }
+.dancing .fig-part.arm-r { animation: wave-r .5s ease-in-out 5; animation-delay: -.25s; }
+.dancing .eyes-open, .dancing .mouth-open { opacity: 1; }
+.dancing .eyes-closed, .dancing .smile { opacity: 0; }
+
+@keyframes groove-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(.8%); } }
+@keyframes hip-sway   { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-2.6deg); } 75% { transform: rotate(2.6deg); } }
+@keyframes torso-sway { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(4deg); } 75% { transform: rotate(-4deg); } }
+@keyframes head-bob   { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-6deg); } }
+@keyframes wave-l     { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-13deg); } }
+@keyframes wave-r     { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(13deg); } }
 @keyframes happy-dance {
   0%   { transform: translateY(0) rotate(0) scale(1, 1); }
   8%   { transform: translateY(2%) rotate(0) scale(1.04, .95); }   /* crouch */
@@ -501,7 +530,7 @@ body {
   100% { opacity: 0; translate: var(--dx, 0) -120px; scale: 1.15; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dancer.dancing { animation: none; }
+  .dancer.dancing, .dancing .fig-part { animation: none !important; }
   .fx { display: none; }
 }
 /* water layer clipped to the illustration's silhouette */

@@ -451,6 +451,7 @@
     const cups = events.filter(isWater).length;
     const ratio = (cups * WATER_CUP_ML) / GOAL_ML;
     el.water.style.height = `${Math.min(ratio, 1) * 100}%`;   // מתמלאת עד הסוף ביעד
+    Figure.setLevel(Math.min(ratio, 1));                       // הדמות המונפשת (js/figure.js)
     el.water.classList.toggle("is-empty", cups === 0);
     el.level.textContent = `${Math.round(ratio * 100)}%`;      // יכול לעבור 100%
 
@@ -544,7 +545,8 @@
     dancer.classList.remove("dancing");
     void dancer.offsetWidth; // restart the animation if already dancing
     dancer.classList.add("dancing");
-    dancer.addEventListener("animationend", () => dancer.classList.remove("dancing"), { once: true });
+    clearTimeout(happyDance.t);
+    happyDance.t = setTimeout(() => dancer.classList.remove("dancing"), 2600);
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const bits = ["♪", "♫", "drop", "♪", "drop", "♫", "drop"];
